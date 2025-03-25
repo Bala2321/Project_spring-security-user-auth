@@ -1,0 +1,8 @@
+package com.example.common;
+
+public class FinalConstants {
+	
+	public final String FAIL = "fail";
+	public final String SUCCESS = "success";
+
+}

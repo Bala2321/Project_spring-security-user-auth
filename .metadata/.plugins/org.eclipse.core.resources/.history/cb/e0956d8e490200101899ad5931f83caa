@@ -1,0 +1,9 @@
+package com.project.entity;
+
+import jakarta.persistence.Entity;
+
+@Entity
+@Table(nar = "t_user_role")
+public class TUserRole {
+
+}

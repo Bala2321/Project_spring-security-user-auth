@@ -1,0 +1,19 @@
+spring.application.name=Spring_Security
+
+server.port=8080
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/testDB
+spring.datasource.username=postgres
+spring.datasource.password=Itachi
+
+logging.level.org.springframework.security=debug
+
+
+# Enable component scanning for the entire 'com.project' package
+spring.main.allow-bean-definition-overriding=true
+
+# Ensure JPA repositories are scanned
+spring.data.jpa.repositories.enabled=true
+
+
+

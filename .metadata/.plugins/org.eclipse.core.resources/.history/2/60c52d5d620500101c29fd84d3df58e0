@@ -1,0 +1,21 @@
+9package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+
+@SpringBootApplication
+@ComponentScan(basePackages = "com.project") // Add this line
+public class SpringSecurityApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringSecurityApplication.class, args);
+	}
+	
+	@Override
+	public SpringApplicationBuilder configure(SpringApplicationBuilder application)
+	{
+		
+	}
+
+}

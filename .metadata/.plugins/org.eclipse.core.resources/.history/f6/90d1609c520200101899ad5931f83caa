@@ -1,0 +1,11 @@
+package com.project.repository;
+
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.project.entity.Muser;
+
+public interface MUserRepo extends JpaRepository<Muser, UUID> {
+
+}

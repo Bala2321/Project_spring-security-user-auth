@@ -1,0 +1,94 @@
+package com.project.security;
+
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.Customizer;
+
+@Configuration
+@EnableWebSecurity
+public class springSecurityConfiguration {
+
+//	 @Bean
+//	    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//	        http
+//	            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+////	            .csrf(csrf -> csrf
+////	                .csrfTokenRepository(csrfTokenRepository()) // Enable CSRF
+////	                .ignoringRequestMatchers("/public/**")  // Allow CSRF for public APIs
+////	            )
+//	            .csrf(csrf -> csrf.disable()) // ✅ Fully disables CSRF for all APIs
+//	            .authorizeHttpRequests(auth -> auth
+//	            	    .requestMatchers("/public/**").permitAll() // Allow public APIs
+//	            	    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight
+//	            	    .anyRequest().authenticated()
+//	            	)
+//	            
+//	            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//	        // 🔹 Explicitly disable security features that might block requests
+//	        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+//	        http.securityMatcher("/**");// ✅ Ensure Spring Security applies to all endpoints
+//
+//	        return http.build();
+//	    }
+	
+//	@Bean
+//	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//	    http
+//	        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+//	        .csrf(csrf -> csrf.disable()) // Disable CSRF (if not needed)
+//	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Prevent sessions
+//	        .securityContext(securityContext -> securityContext.requireExplicitSave(false)) // Ensure security context is not stored in sessions
+//	        .authorizeHttpRequests(auth -> auth
+//	            .requestMatchers("/public/**").permitAll() // Allow public APIs
+//	            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight
+//	            .anyRequest().authenticated()
+//	        )
+//	        .logout(logout -> logout.invalidateHttpSession(true).deleteCookies("JSESSIONID")); // Delete session cookies
+//
+//	    return http.build();
+//	}
+//
+////	    // ✅ CSRF Token Repository: Stores token in a cookie
+////	    @Bean
+////	    public CsrfTokenRepository csrfTokenRepository() {
+////	        return CookieCsrfTokenRepository.withHttpOnlyFalse(); // CSRF token in cookie
+////	    }
+//
+//	    // ✅ CORS Configuration
+//	    @Bean
+//	    public CorsConfigurationSource corsConfigurationSource() {
+//	        CorsConfiguration config = new CorsConfiguration();
+//	        config.setAllowedOrigins(List.of("*")); // Allow all origins
+//	        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//	        config.setAllowedHeaders(List.of("*"));
+//	        
+//	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//	        source.registerCorsConfiguration("/**", config);
+//	        return source;
+//	    }
+//	    @Bean
+//	    public CorsFilter corsFilter() {
+//	        return new CorsFilter(corsConfigurationSource());
+//	    }
+	  @Override
+	  protected void configure(HttpSecurity http) throws Exception {  // (2)
+	      http
+	        .authorizeRequests()
+	          .antMatchers("/", "/home").permitAll() // (3)
+	          .anyRequest().authenticated() // (4)
+	          .and()
+	       .formLogin() // (5)
+	         .loginPage("/login") // (5)
+	         .permitAll()
+	         .and()
+	      .logout() // (6)
+	        .permitAll()
+	        .and()
+	      .httpBasic(); // (7)
+	  }
+	
+	}

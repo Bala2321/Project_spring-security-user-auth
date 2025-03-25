@@ -1,0 +1,10 @@
+package com.project.entity;
+
+
+
+
+@Entity
+@Table(name = "user_credentials")
+public class TUserProfile {
+
+}

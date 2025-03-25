@@ -1,0 +1,61 @@
+package com.project.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Service;
+
+import com.project.entity.Muser;
+import com.project.entity.RefreshToken;
+import com.project.repository.MUserRepo;
+import com.project.security.JwtUtil;
+
+import java.util.Map;
+
+@Service
+public class AuthService {
+	
+	 @Autowired
+	    private MUserRepo muserRepository;
+	 
+	 @Autowired
+	    private RefreshTokenService refreshTokenService;
+
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    
+    
+
+    public AuthService(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+    }
+
+    public Map<String, String> login(String username, String password) {
+        // Authenticate user
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
+
+        // Get authenticated user details
+        User user = (User) authentication.getPrincipal();
+
+        // Generate JWT token
+        String accessToken  = jwtUtil.generateToken(user.getUsername());
+        
+        Muser muser = muserRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+     // Generate refresh token
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(muser);
+
+        // Return response with status and token
+        return Map.of(
+                "status", "success",
+                "token", accessToken 
+        );
+    }
+}

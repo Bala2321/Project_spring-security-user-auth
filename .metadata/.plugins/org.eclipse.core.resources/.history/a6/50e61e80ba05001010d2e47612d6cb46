@@ -1,0 +1,25 @@
+package com.project.pojo;
+
+public class OutputResponse {
+
+	
+	private String status;
+	private Object output;
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public Object getOutput() {
+		return output;
+	}
+	public void setOutput(Object output) {
+		this.output = output;
+	}
+	@Override
+	public String toString() {
+		return "OutputResponse [status=" + status + ", output=" + output + "]";
+	}
+	
+}

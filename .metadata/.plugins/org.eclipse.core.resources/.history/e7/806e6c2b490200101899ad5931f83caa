@@ -1,0 +1,20 @@
+package com.project.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "user_credentials")
+public class TUserProfile {
+	
+	
+	 @Id
+	    private UUID userId;
+
+	    @OneToOne
+	    @MapsId
+	    @JoinColumn(name = "user_id")
+	    private User user;
+
+
+}

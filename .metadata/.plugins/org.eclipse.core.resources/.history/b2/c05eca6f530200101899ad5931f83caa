@@ -1,0 +1,30 @@
+package com.project.entity;
+
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "t_user_profile")
+public class TUserProfile {
+	
+	
+	  @Id
+	    private UUID userId;  // Primary key, references m_users(id)
+
+	    @OneToOne
+	    @MapsId  // Ensures this entity shares the same ID as User
+	    @JoinColumn(name = "user_id", referencedColumnName = "id")
+	    private Muser user;
+
+	    @Column(nullable = false)
+	    private String passwordHash;
+	    
+
+}

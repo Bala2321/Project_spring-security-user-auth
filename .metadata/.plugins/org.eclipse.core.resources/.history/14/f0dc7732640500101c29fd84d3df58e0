@@ -1,0 +1,11 @@
+package com.project.common;
+
+import org.hibernate.annotations.Comment;
+
+@Comment
+public class FinalConstants {
+	
+	public final String FAIL = "fail";
+	public final String SUCCESS = "success";
+
+}

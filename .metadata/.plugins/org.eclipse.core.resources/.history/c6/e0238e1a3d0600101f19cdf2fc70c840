@@ -1,0 +1,80 @@
+package com.project.security;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+
+/**
+ * Utility class for handling JWT (JSON Web Token) generation and validation.
+ */
+@Component
+public class JwtUtil {
+
+    private final SecretKey key;
+
+    // Read properties from application.properties
+    @Value("${jwt.expiration-time}")
+    private long expirationTime;
+
+    public JwtUtil() {
+        // ✅ Generate a secure random secret key (Newer JJWT version)
+        this.key = Keys.secretKeyFor(Jwts.SIG.HS256);
+    }
+
+    /**
+     * ✅ Generates a JWT token for a given username.
+     * @param username The username for which the token is generated.
+     * @return The generated JWT token.
+     */
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(key, Jwts.SIG.HS256)  // ✅ Corrected Signing Algorithm
+                .compact();
+    }
+
+    /**
+     * ✅ Validates a JWT token and extracts the username.
+     * @param token The JWT token to validate.
+     * @return True if valid, otherwise false.
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                .verifyWith(key)  // ✅ Use .verifyWith(key) instead of setSigningKey()
+                .build()
+                .parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    /**
+     * ✅ Checks if the token has expired.
+     * @param token The JWT token.
+     * @return True if expired, otherwise false.
+     */
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)  // ✅ Fix for new JJWT 0.12.6 version
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
+    }
+}

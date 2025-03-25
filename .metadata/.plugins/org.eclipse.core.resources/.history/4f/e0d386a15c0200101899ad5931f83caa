@@ -1,0 +1,27 @@
+package com.project.exceptionHandler;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.project.pojo.OutputResponse;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+	
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	
+	 public ResponseEntity<OutputResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+		OutputResponse outputResponse = new OutputResponse();
+
+        // Extract field errors and put them into a map
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+            errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        // Return structured response
+        return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Validation failed", errors));
+    }
+
+}

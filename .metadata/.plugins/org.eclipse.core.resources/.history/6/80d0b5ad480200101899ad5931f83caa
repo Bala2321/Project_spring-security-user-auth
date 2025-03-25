@@ -1,0 +1,12 @@
+package com.project.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "m_user")
+@NoArgsConstructor
+@AllArgsConstructor
+public class Muser {
+
+}

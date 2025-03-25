@@ -1,0 +1,132 @@
+package com.project.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Service;
+
+import com.project.common.FinalConstants;
+import com.project.entity.Muser;
+import com.project.entity.RefreshToken;
+import com.project.exceptionHandler.InvalidRefreshTokenException;
+import com.project.pojo.OutputResponse;
+import com.project.repository.MUserRepo;
+import com.project.security.JwtUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+@Service
+public class AuthService {
+
+	@Autowired
+	private MUserRepo muserRepository;
+
+	@Autowired
+	private RefreshTokenService refreshTokenService;
+
+	@Autowired
+	private FinalConstants finalConstants;
+
+
+	private final AuthenticationManager authenticationManager;
+	private final JwtUtil jwtUtil;
+
+
+
+	public AuthService(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+		this.authenticationManager = authenticationManager;
+		this.jwtUtil = jwtUtil;
+	}
+
+	public OutputResponse login(String username, String password) {
+		// Authenticate user
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(username, password)
+				);
+
+		// Get authenticated user details
+		User user = (User) authentication.getPrincipal();
+
+		// Generate JWT token
+		String accessToken  = jwtUtil.generateToken(user.getUsername());
+
+		Muser muser = muserRepository.findByUsername(user.getUsername())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		// Generate refresh token
+		RefreshToken refreshToken = refreshTokenService.createRefreshToken(muser);
+
+
+		Map<String, String> tokens = new HashMap<>();
+		tokens.put("accessToken", accessToken);
+		tokens.put("refreshToken", refreshToken.getToken());
+		OutputResponse outputResponse = new OutputResponse();
+
+		outputResponse.setStatus(finalConstants.SUCCESS);
+		outputResponse.setOutput(tokens);
+		outputResponse.setMessage("User loggedin Successfully.");
+
+		// Return response with status and token
+		return  outputResponse;
+	}
+	
+	
+	
+	public OutputResponse refreshAccessToken(String refreshToken) {
+	    Map<String, String> response = new HashMap<>();
+
+	    Optional<RefreshToken> storedToken = refreshTokenService.getRefreshToken(refreshToken);
+
+	    if (storedToken.isEmpty() || !refreshTokenService.validateRefreshToken(storedToken.get())) {
+	    	 throw new InvalidRefreshTokenException("Invalid or expired refresh token");
+	    	 }
+
+	    // Get user and generate new access token
+	    Muser user = storedToken.get().getUser();
+	    String newAccessToken = jwtUtil.generateToken(user.getUsername());
+
+	    // (Optional) Revoke old refresh token and generate a new one
+	    refreshTokenService.revokeRefreshToken(storedToken.get());
+	    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+	    OutputResponse outputResponse = new OutputResponse();
+	   
+	    response.put("accessToken", newAccessToken);
+	    response.put("refreshToken", newRefreshToken.getToken());
+
+	    
+	    outputResponse.setStatus(finalConstants.SUCCESS);
+		outputResponse.setOutput(response);
+		outputResponse.setMessage("New token generated Successfully.");
+	    return outputResponse;
+	}
+
+	public OutputResponse logOut() {
+		  // Get authenticated user from SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            outputResponse.setStatus(finalConstants.FAILURE);
+            outputResponse.setMessage("User is not authenticated.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(outputResponse);
+        }
+
+        // Extract username from the authenticated user
+        String username = authentication.getName();
+
+        // Fetch user by username
+        Muser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Delete all refresh tokens for the user
+        refreshTokenService.logoutUser(user);
+		return null;
+	}
+
+}
