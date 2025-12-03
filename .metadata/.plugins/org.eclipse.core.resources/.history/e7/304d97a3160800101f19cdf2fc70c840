@@ -1,5 +1,0 @@
-package com.project.exceptionHandler;
-
-public class InvalidRefreshTokenException {
-
-}

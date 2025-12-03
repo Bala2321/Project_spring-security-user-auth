@@ -1,9 +1,0 @@
-package com.project.pojo;
-
-public class OutputResponse {
-
-	
-	private String status;
-	private Object output;
-	
-}
